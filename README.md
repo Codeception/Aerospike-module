@@ -40,12 +40,12 @@ $ php composer.phar install
 modules:
     enabled:
         - Aerospike:
-            addr: '127.0.0.1'
-            port: 3000
-            set: 'cache'
-            namespace: 'test'
-            persistent: false
-            cleanup: true
+            addr: '127.0.0.1' # Aerospike host to connect
+            port: 3000        # default Aerospike port
+            set: 'cache'      # the Aerospike set to store data
+            namespace: 'test' # the Aerospike namespace to store data
+            persistent: false # use persistent connection
+            cleanup: true     # cleanup after each test run
 ```
 
 Then regenerate base class for unit suite
