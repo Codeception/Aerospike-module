@@ -40,11 +40,12 @@ $ php composer.phar install
 modules:
     enabled:
         - Aerospike:
-            addr: '127.0.0.1' # Optional
-            port: 3000        # Optional
+            addr: '127.0.0.1'
+            port: 3000
             set: 'cache'
             namespace: 'test'
-            persistent: false # Optional
+            persistent: false
+            cleanup: true
 ```
 
 Then regenerate base class for unit suite
