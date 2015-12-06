@@ -97,7 +97,7 @@ class Aerospike extends CodeceptionModule
     }
 
     /**
-     * Grabs value from Aerospike by key
+     * Grabs value from Aerospike by key.
      *
      * Example:
      *
@@ -122,6 +122,14 @@ class Aerospike extends CodeceptionModule
     /**
      * Checks item in Aerospike exists and the same as expected.
      *
+     * Example:
+     *
+     * ```php
+     * <?php
+     * $I->seeInAerospike('key');
+     * $I->seeInAerospike('key', 'value');
+     * ?>
+     *
      * @param $key
      * @param mixed $value
      */
@@ -136,6 +144,14 @@ class Aerospike extends CodeceptionModule
 
     /**
      * Checks item in Aerospike does not exist or is the same as expected.
+     *
+     * Example:
+     *
+     * ```php
+     * <?php
+     * $I->dontSeeInAerospike('key');
+     * $I->dontSeeInAerospike('key', 'value');
+     * ?>
      *
      * @param $key
      * @param mixed $value

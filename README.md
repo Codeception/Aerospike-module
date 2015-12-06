@@ -54,6 +54,31 @@ Then regenerate base class for unit suite
 $ vendor/bin/codecept build
 ```
 
+## Usage
+
+Grabs value from Aerospike by key:
+
+```php
+$users_count = $I->grabValueFromAerospike('users_count');
+```
+
+Checks item in Aerospike exists and the same as expected:
+```php
+$I->seeInAerospike('key');
+$I->seeInAerospike('key', 'value');
+```
+
+Checks item in Aerospike does not exist or is the same as expected:
+```php
+$I->dontSeeInAerospike('key');
+$I->dontSeeInAerospike('key', 'value');
+```
+
+Inserts data into Aerospike database:
+```php
+$I->haveInAerospike('users', ['name' => 'miles', 'email' => 'miles@davis.com']);
+```
+
 ## License
 
 Aerospike Module is open-sourced software licensed under the [MIT][4] License.
