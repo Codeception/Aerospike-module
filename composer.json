@@ -1,6 +1,7 @@
 {
   "name": "codeception/aerospike-module",
   "description": "Aerospike Module for Codeception",
+  "keywords": ["aerospike", "codeception"],
   "type": "library",
   "license": "MIT",
   "authors": [
