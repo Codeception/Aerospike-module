@@ -1,6 +1,6 @@
 {
   "name": "codeception/aerospike-module",
-  "description": "Aerospike Module for Codeception. Integrates Aerospike1 into Codeception tests.",
+  "description": "Aerospike Module for Codeception. Integrates Aerospike into Codeception tests.",
   "keywords": [
     "aerospike",
     "codeception",

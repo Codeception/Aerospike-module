@@ -36,7 +36,7 @@ use Codeception\TestCase;
  *                 port: 3000
  *                 set: 'cache'
  *                 namespace: 'test'
- *                 persistent: false,
+ *                 persistent: false
  *                 cleanup: true
  *
  * Be sure you don't use the production server to connect.
