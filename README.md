@@ -23,7 +23,7 @@ Create the `composer.json` file as follows:
 {
     "require": {
         "codeception/codeception": "*",
-        "codeception/aerospike-module": "*",
+        "codeception/aerospike-module": "*"
     }
 }
 ```
