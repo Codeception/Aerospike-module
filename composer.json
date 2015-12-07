@@ -1,9 +1,13 @@
 {
   "name": "codeception/aerospike-module",
-  "description": "Aerospike Module for Codeception",
-  "keywords": ["aerospike", "codeception"],
+  "description": "Aerospike Module for Codeception. Integrates Aerospike1 into Codeception tests.",
+  "keywords": [
+    "aerospike",
+    "codeception"
+  ],
   "type": "library",
   "license": "MIT",
+  "homepage": "https://github.com/Codeception/Aerospike-module/releases",
   "authors": [
     {
       "name": "Michael Bodnarchuk",
@@ -14,12 +18,22 @@
       "email": "me@klay.me"
     }
   ],
+  "support": {
+    "issues": "https://github.com/Codeception/Aerospike-module/issues",
+    "source": "https://github.com/Codeception/Aerospike-module"
+  },
   "require": {
-    "ext-aerospike": "*"
+    "ext-aerospike": "*",
+    "codeception/codeception": "^2.1"
   },
   "autoload": {
     "psr-4": {
-      "Codeception\\": "src"
+      "Codeception\\": "src/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.0.x-dev"
     }
   }
 }

@@ -10,7 +10,7 @@ To use this module on your machine, you need at least:
 
 - [Aerospike Server][1] >= 3.5.3
 - [Aerospike PHP Extension][2]
-- Latest [Codeception][3] release
+- [Codeception][3] >= 2.1
 
 **NOTE:**
 Probably this will work with older Aerospike Server versions, but we have not tested.
