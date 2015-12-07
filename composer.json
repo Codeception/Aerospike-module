@@ -3,7 +3,9 @@
   "description": "Aerospike Module for Codeception. Integrates Aerospike1 into Codeception tests.",
   "keywords": [
     "aerospike",
-    "codeception"
+    "codeception",
+    "testing",
+    "nosql"
   ],
   "type": "library",
   "license": "MIT",
@@ -11,10 +13,11 @@
   "authors": [
     {
       "name": "Michael Bodnarchuk",
-      "email": "davert.php@mailican.com"
+      "email": "davert@mail.ua",
+      "homepage": "http://codegyre.com"
     },
     {
-      "name": "Sergei Iakovlev",
+      "name": "Serghei Iakovlev",
       "email": "me@klay.me"
     }
   ],
