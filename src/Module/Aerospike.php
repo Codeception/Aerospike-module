@@ -157,8 +157,12 @@ class Aerospike extends CodeceptionModule
         $key = $this->buildKey($key);
         $this->aerospike->get($key, $actual);
 
-        $this->debugSection('Value', $actual['bins']['value']);
-        $this->assertNotEquals($value, $actual['bins']['value']);
+        if (isset($actual['bins']['value'])) {
+            $actual = $actual['bins']['value'];
+        }
+
+        $this->debugSection('Value', $actual);
+        $this->assertNotEquals($value, $actual);
     }
 
     /**
@@ -237,16 +241,12 @@ class Aerospike extends CodeceptionModule
         }
 
         foreach ($this->keys as $i => $key) {
-            $status = $this->aerospike->remove(
+            $this->aerospike->remove(
                 $key,
                 [\Aerospike::OPT_POLICY_RETRY => \Aerospike::POLICY_RETRY_ONCE]
             );
 
             unset($this->keys[$i]);
-
-            if (\Aerospike::OK != $status) {
-                $this->debug(sprintf('Warning [%s]: %s', $this->aerospike->errorno(), $this->aerospike->error()));
-            }
         }
     }
 
