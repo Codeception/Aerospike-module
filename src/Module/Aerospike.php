@@ -24,6 +24,7 @@ use Codeception\TestCase;
  * * set: cache - the Aerospike set to store data
  * * namespace: test - the Aerospike namespace to store data
  * * reconnect: false - whether the module should reconnect to the Aerospike before each test
+ * * silent: true - do not throw exception if the Aerospike extension does not installed at bootstrap time
  *
  *
  * ## Example (`unit.suite.yml`)
@@ -36,6 +37,7 @@ use Codeception\TestCase;
  *                 set: 'cache'
  *                 namespace: 'test'
  *                 reconnect: true
+ *                 silent: true
  *
  * Be sure you don't use the production server to connect.
  *
@@ -59,13 +61,14 @@ class Aerospike extends CodeceptionModule
         'set'       => 'cache',
         'namespace' => 'test',
         'reconnect' => false,
+        'silent'    => true,
     ];
 
     protected $keys = [];
 
     public function _initialize()
     {
-        if (!class_exists('\Aerospike')) {
+        if (!class_exists('\Aerospike') && !$this->config['silent']) {
             throw new ModuleException(__CLASS__, 'Aerospike classes not loaded');
         }
 
@@ -74,18 +77,20 @@ class Aerospike extends CodeceptionModule
 
     public function _before(TestCase $test)
     {
-        if ($this->config['reconnect']) {
-            $this->connect();
-        }
+        if (class_exists('\Aerospike')) {
+            if ($this->config['reconnect']) {
+                $this->connect();
+            }
 
-        $this->removeInserted();
+            $this->removeInserted();
+        }
 
         parent::_before($test);
     }
 
     public function _after(TestCase $test)
     {
-        if ($this->config['reconnect']) {
+        if ($this->config['reconnect'] && class_exists('\Aerospike')) {
             $this->disconnect();
         }
 
@@ -212,7 +217,7 @@ class Aerospike extends CodeceptionModule
 
     private function connect()
     {
-        if ($this->aerospike instanceof \Aerospike) {
+        if ($this->aerospike instanceof \Aerospike || !class_exists('\Aerospike')) {
             return;
         }
 

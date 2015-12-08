@@ -45,6 +45,7 @@ modules:
             set: 'cache'      # the Aerospike set to store data
             namespace: 'test' # the Aerospike namespace to store data
             reconnect: false  # whether the module should reconnect to the Aerospike before each test
+            silent: true      # do not throw exception if the Aerospike extension does not installed at bootstrap time
 ```
 
 Then regenerate base class for unit suite
