@@ -26,7 +26,6 @@
     "source": "https://github.com/Codeception/Aerospike-module"
   },
   "require": {
-    "ext-aerospike": "*",
     "codeception/codeception": "^2.1"
   },
   "autoload": {
