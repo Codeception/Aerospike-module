@@ -77,20 +77,18 @@ class Aerospike extends CodeceptionModule
 
     public function _before(TestCase $test)
     {
-        if (class_exists('\Aerospike')) {
-            if ($this->config['reconnect']) {
-                $this->connect();
-            }
-
-            $this->removeInserted();
+        if ($this->config['reconnect']) {
+            $this->connect();
         }
+
+        $this->removeInserted();
 
         parent::_before($test);
     }
 
     public function _after(TestCase $test)
     {
-        if ($this->config['reconnect'] && class_exists('\Aerospike')) {
+        if ($this->config['reconnect']) {
             $this->disconnect();
         }
 
@@ -232,6 +230,10 @@ class Aerospike extends CodeceptionModule
 
     private function disconnect()
     {
+        if (!$this->aerospike instanceof \Aerospike) {
+            return;
+        }
+
         if ($this->aerospike->isConnected()) {
             $this->aerospike->close();
         }
