@@ -44,8 +44,7 @@ modules:
             port: 3000        # default Aerospike port
             set: 'cache'      # the Aerospike set to store data
             namespace: 'test' # the Aerospike namespace to store data
-            persistent: false # use persistent connection
-            cleanup: true     # cleanup after each test run
+            reconnect: false  # whether the module should reconnect to the Aerospike before each test
 ```
 
 Then regenerate base class for unit suite

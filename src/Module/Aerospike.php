@@ -9,7 +9,7 @@ use Codeception\TestCase;
 /**
  * Connects to [Aerospike](http://www.aerospike.com/) using [php-aerospike](http://www.aerospike.com/docs/client/php) extension.
  *
- * Performs a cleanup after each test run.
+ * Performs a cleanup inserted keys after each test run.
  *
  * ## Status
  *
@@ -23,8 +23,7 @@ use Codeception\TestCase;
  * * port: 3000 - default Aerospike port
  * * set: cache - the Aerospike set to store data
  * * namespace: test - the Aerospike namespace to store data
- * * persistent: false - use persistent connection
- * * cleanup: true - cleanup after each test run
+ * * reconnect: false - whether the module should reconnect to the Aerospike before each test
  *
  *
  * ## Example (`unit.suite.yml`)
@@ -36,8 +35,7 @@ use Codeception\TestCase;
  *                 port: 3000
  *                 set: 'cache'
  *                 namespace: 'test'
- *                 persistent: false
- *                 cleanup: true
+ *                 reconnect: true
  *
  * Be sure you don't use the production server to connect.
  *
@@ -55,13 +53,12 @@ class Aerospike extends CodeceptionModule
     public $aerospike = null;
 
     protected $config = [
-        'addr'       => '127.0.0.1',
-        'port'       => 3000,
-        'options'    => [],
-        'cleanup'    => true,
-        'set'        => 'cache',
-        'namespace'  => 'test',
-        'persistent' => false
+        'addr'      => '127.0.0.1',
+        'port'      => 3000,
+        'options'   => [],
+        'set'       => 'cache',
+        'namespace' => 'test',
+        'reconnect' => false,
     ];
 
     protected $keys = [];
@@ -72,25 +69,24 @@ class Aerospike extends CodeceptionModule
             throw new ModuleException(__CLASS__, 'Aerospike classes not loaded');
         }
 
-        $this->aerospike = new \Aerospike(
-            ['hosts' => [['addr' => $this->config['addr'], 'port' => $this->config['port']]]],
-            (bool) $this->config['persistent'],
-            $this->config['options']
-        );
+        $this->connect();
     }
 
     public function _before(TestCase $test)
     {
-        if ($this->config['cleanup']) {
-            $this->cleanup();
+        if ($this->config['reconnect']) {
+            $this->connect();
         }
+
+        $this->removeInserted();
+
         parent::_before($test);
     }
 
     public function _after(TestCase $test)
     {
-        if ($this->aerospike->isConnected()) {
-            $this->aerospike->close();
+        if ($this->config['reconnect']) {
+            $this->disconnect();
         }
 
         parent::_after($test);
@@ -153,8 +149,8 @@ class Aerospike extends CodeceptionModule
      * $I->dontSeeInAerospike('key', 'value');
      * ?>
      *
-     * @param $key
-     * @param mixed $value
+     * @param string $key  Key
+     * @param mixed $value Value
      */
     public function dontSeeInAerospike($key, $value = false)
     {
@@ -176,20 +172,21 @@ class Aerospike extends CodeceptionModule
      * ?>
      * ```
      *
-     * @param string $key
-     * @param mixed $value
-     * @param int $ttl
+     * @param string $key  Key
+     * @param mixed $value Value
+     * @param int $ttl     The time-to-live in seconds for the record. [Optional]
      *
      * @return array
      */
     public function haveInAerospike($key, $value, $ttl = 0)
     {
-        $key = $this->buildKey($key);
+        $key  = $this->buildKey($key);
         $bins = ['value' => $value];
 
         $status = $this->aerospike->put($key, $bins, $ttl);
 
         if (\Aerospike::OK != $status) {
+            $this->fail(sprintf('Warning [%s]: %s', $this->aerospike->errorno(), $this->aerospike->error()));
             return null;
         }
 
@@ -197,14 +194,6 @@ class Aerospike extends CodeceptionModule
         $this->debugSection('Aerospike', json_encode([$key, $value]));
 
         return $key;
-    }
-
-    /**
-     * Cleans up Aerospike database.
-     */
-    public function cleanupAerospike()
-    {
-        $this->cleanup();
     }
 
     /**
@@ -217,16 +206,46 @@ class Aerospike extends CodeceptionModule
         return $this->aerospike;
     }
 
-    protected function cleanup()
+    private function connect()
     {
-        foreach ($this->keys as $key) {
+        if ($this->aerospike instanceof \Aerospike) {
+            return;
+        }
+
+        $config = ['hosts' => [['addr' => $this->config['addr'], 'port' => $this->config['port']]]];
+
+        $this->aerospike = new \Aerospike(
+            $config,
+            false,
+            $this->config['options']
+        );
+    }
+
+    private function disconnect()
+    {
+        if ($this->aerospike->isConnected()) {
+            $this->aerospike->close();
+        }
+
+        $this->aerospike = null;
+    }
+
+    protected function removeInserted()
+    {
+        if (empty($this->keys)) {
+            return;
+        }
+
+        foreach ($this->keys as $i => $key) {
             $status = $this->aerospike->remove(
                 $key,
                 [\Aerospike::OPT_POLICY_RETRY => \Aerospike::POLICY_RETRY_ONCE]
             );
 
+            unset($this->keys[$i]);
+
             if (\Aerospike::OK != $status) {
-                $this->fail(sprintf('Error [%s]: %s', $this->aerospike->errorno(), $this->aerospike->error()));
+                $this->debug(sprintf('Warning [%s]: %s', $this->aerospike->errorno(), $this->aerospike->error()));
             }
         }
     }
