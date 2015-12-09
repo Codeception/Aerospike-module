@@ -24,6 +24,7 @@ use Codeception\TestCase;
  * * set: cache - the Aerospike set to store data
  * * namespace: test - the Aerospike namespace to store data
  * * reconnect: false - whether the module should reconnect to the Aerospike before each test
+ * * prefix: my_prefix_ - the key prefix
  * * silent: true - do not throw exception if the Aerospike extension does not installed at bootstrap time
  *
  *
@@ -37,6 +38,7 @@ use Codeception\TestCase;
  *                 set: 'cache'
  *                 namespace: 'test'
  *                 reconnect: true
+ *                 prefix: ''
  *                 silent: true
  *
  * Be sure you don't use the production server to connect.
@@ -61,6 +63,7 @@ class Aerospike extends CodeceptionModule
         'set'       => 'cache',
         'namespace' => 'test',
         'reconnect' => false,
+        'prefix'    => '',
         'silent'    => true,
     ];
 
@@ -93,6 +96,16 @@ class Aerospike extends CodeceptionModule
         }
 
         parent::_after($test);
+    }
+
+    protected function onReconfigure()
+    {
+        if (!class_exists('\Aerospike') && !$this->config['silent']) {
+            throw new ModuleException(__CLASS__, 'Aerospike classes not loaded');
+        }
+
+        $this->disconnect();
+        $this->connect();
     }
 
     /**
@@ -268,7 +281,7 @@ class Aerospike extends CodeceptionModule
         return $this->aerospike->initKey(
             $this->config['namespace'],
             $this->config['set'],
-            $key
+            $this->config['prefix'] . $key
         );
     }
 }

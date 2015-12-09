@@ -10,7 +10,7 @@ To use this module on your machine, you need at least:
 
 - [Aerospike Server][1] >= 3.5.3
 - [Aerospike PHP Extension][2]
-- [Codeception][3] >= 2.1
+- Latest [Codeception][3] release
 
 **NOTE:**
 Probably this will work with older Aerospike Server versions, but we have not tested.
@@ -45,6 +45,7 @@ modules:
             set: 'cache'      # the Aerospike set to store data
             namespace: 'test' # the Aerospike namespace to store data
             reconnect: false  # whether the module should reconnect to the Aerospike before each test
+            prefix: prefix_   # the key prefix
             silent: true      # do not throw exception if the Aerospike extension does not installed at bootstrap time
 ```
 
