@@ -84,7 +84,7 @@ $I->haveInAerospike('users', ['name' => 'miles', 'email' => 'miles@davis.com']);
 
 Aerospike Module is open-sourced software licensed under the [MIT][4] License.
 
-© 2015 Codeception Team and contributors
+© 2015-2016 Codeception Team and contributors
 
 [1]: http://www.aerospike.com/
 [2]: http://www.aerospike.com/docs/client/php/install/
