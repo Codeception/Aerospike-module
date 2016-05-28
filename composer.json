@@ -26,7 +26,7 @@
     "source": "https://github.com/Codeception/Aerospike-module"
   },
   "require": {
-    "codeception/codeception": "^2.1"
+    "codeception/codeception": "~2.1"
   },
   "autoload": {
     "psr-4": {

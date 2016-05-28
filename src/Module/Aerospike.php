@@ -127,7 +127,7 @@ class Aerospike extends CodeceptionModule
         $key = $this->buildKey($key);
         $this->aerospike->get($key, $data);
 
-        $this->debugSection('Value', $data['bins']['value']);
+        $this->debugSection('Value', $data);
         return $data['bins']['value'];
     }
 
@@ -150,7 +150,7 @@ class Aerospike extends CodeceptionModule
         $key = $this->buildKey($key);
         $this->aerospike->get($key, $actual);
 
-        $this->debugSection('Value', $actual['bins']['value']);
+        $this->debugSection('Value', $actual);
         $this->assertEquals($value, $actual['bins']['value']);
     }
 
@@ -173,11 +173,13 @@ class Aerospike extends CodeceptionModule
         $key = $this->buildKey($key);
         $this->aerospike->get($key, $actual);
 
+        $this->debugSection('Value', $actual);
+
         if (isset($actual['bins']['value'])) {
             $actual = $actual['bins']['value'];
         }
 
-        $this->debugSection('Value', $actual);
+
         $this->assertNotEquals($value, $actual);
     }
 
@@ -211,7 +213,7 @@ class Aerospike extends CodeceptionModule
         }
 
         $this->keys[] = $key;
-        $this->debugSection('Aerospike', json_encode([$key, $value]));
+        $this->debugSection('Aerospike', [$key, $value]);
 
         return $key;
     }
