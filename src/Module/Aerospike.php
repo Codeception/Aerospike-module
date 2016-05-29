@@ -124,10 +124,22 @@ class Aerospike extends CodeceptionModule
      */
     public function grabValueFromAerospike($key)
     {
-        $key = $this->buildKey($key);
-        $this->aerospike->get($key, $data);
+        $akey = $this->buildKey($key);
 
-        $this->debugSection('Value', $data);
+        $status = $this->aerospike->get($akey, $data);
+        if ($status != \Aerospike::OK) {
+            $this->fail(
+                sprintf(
+                    "Unable to grab '%s' from Aerospike DB [%s]: %s",
+                    $key,
+                    $this->aerospike->errorno(),
+                    $this->aerospike->error()
+                )
+            );
+        }
+
+        $this->debugSection('Value', $data['bins']['value']);
+
         return $data['bins']['value'];
     }
 
@@ -147,10 +159,21 @@ class Aerospike extends CodeceptionModule
      */
     public function seeInAerospike($key, $value = false)
     {
-        $key = $this->buildKey($key);
-        $this->aerospike->get($key, $actual);
+        $akey = $this->buildKey($key);
 
-        $this->debugSection('Value', $actual);
+        $status = $this->aerospike->get($akey, $actual);
+        if ($status != \Aerospike::OK) {
+            $this->fail(
+                sprintf(
+                    "Unable to get '%s' from Aerospike DB [%s]: %s",
+                    $key,
+                    $this->aerospike->errorno(),
+                    $this->aerospike->error()
+                )
+            );
+        }
+
+        $this->debugSection('Value', $actual['bins']['value']);
         $this->assertEquals($value, $actual['bins']['value']);
     }
 
@@ -170,16 +193,15 @@ class Aerospike extends CodeceptionModule
      */
     public function dontSeeInAerospike($key, $value = false)
     {
-        $key = $this->buildKey($key);
-        $this->aerospike->get($key, $actual);
+        $akey = $this->buildKey($key);
 
-        $this->debugSection('Value', $actual);
+        $this->aerospike->get($akey, $actual);
 
         if (isset($actual['bins']['value'])) {
             $actual = $actual['bins']['value'];
         }
 
-
+        $this->debugSection('Value', $actual);
         $this->assertNotEquals($value, $actual);
     }
 
@@ -202,17 +224,28 @@ class Aerospike extends CodeceptionModule
      */
     public function haveInAerospike($key, $value, $ttl = 0)
     {
-        $key  = $this->buildKey($key);
+        $akey  = $this->buildKey($key);
         $bins = ['value' => $value];
 
-        $status = $this->aerospike->put($key, $bins, $ttl);
+        $status = $this->aerospike->put(
+            $akey,
+            $bins,
+            $ttl,
+            [\Aerospike::OPT_POLICY_KEY => \Aerospike::POLICY_KEY_SEND]
+        );
 
-        if (\Aerospike::OK != $status) {
-            $this->fail(sprintf('Warning [%s]: %s', $this->aerospike->errorno(), $this->aerospike->error()));
-            return null;
+        if ($status != \Aerospike::OK) {
+            $this->fail(
+                sprintf(
+                    "Unable to store '%s' to the Aerospike DB [%s]: %s",
+                    $key,
+                    $this->aerospike->errorno(),
+                    $this->aerospike->error()
+                )
+            );
         }
 
-        $this->keys[] = $key;
+        $this->keys[] = $akey;
         $this->debugSection('Aerospike', [$key, $value]);
 
         return $key;
