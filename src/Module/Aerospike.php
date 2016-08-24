@@ -2,20 +2,21 @@
 
 namespace Codeception\Module;
 
+use Codeception\TestInterface;
 use Codeception\Exception\ModuleException;
 use Codeception\Module as CodeceptionModule;
-use Codeception\TestCase;
 
 /**
- * Connects to [Aerospike](http://www.aerospike.com/) using [php-aerospike](http://www.aerospike.com/docs/client/php) extension.
+ * This module uses the [php-aerospike](http://www.aerospike.com/docs/client/php) extension
+ * to interact with a [Aerospike](http://www.aerospike.com/) server.
  *
  * Performs a cleanup inserted keys after each test run.
  *
  * ## Status
  *
  * * Maintainer: **Serghei Iakovlev**
- * * Stability: **beta**
- * * Contact: sadhooklay@gmail.com
+ * * Stability: **stable**
+ * * Contact: serghei@codeception.com
  *
  * ## Configuration
  *
@@ -25,27 +26,26 @@ use Codeception\TestCase;
  * * namespace: test - the Aerospike namespace to store data
  * * reconnect: false - whether the module should reconnect to the Aerospike before each test
  * * prefix: my_prefix_ - the key prefix
- * * silent: true - do not throw exception if the Aerospike extension does not installed at bootstrap time
  *
  *
- * ## Example (`unit.suite.yml`)
+ * ### Example (`unit.suite.yml`)
  *
- *     modules:
- *         enabled:
- *             - Aerospike:
- *                 addr: '127.0.0.1'
- *                 port: 3000
- *                 set: 'cache'
- *                 namespace: 'test'
- *                 reconnect: true
- *                 prefix: ''
- *                 silent: true
+ * ```yaml
+ *    modules:
+ *        - Aerospike:
+ *            addr: '127.0.0.1'
+ *            port: 3000
+ *            set: 'cache'
+ *            namespace: 'test'
+ *            reconnect: false
+ *            prefix: 'prefix_'
+ * ```
  *
  * Be sure you don't use the production server to connect.
  *
  * ## Public Properties
  *
- * * aerospike - instance of Aerospike object
+ * * **aerospike** - instance of Aerospike object
  *
  */
 class Aerospike extends CodeceptionModule
@@ -64,21 +64,30 @@ class Aerospike extends CodeceptionModule
         'namespace' => 'test',
         'reconnect' => false,
         'prefix'    => '',
-        'silent'    => true,
     ];
 
     protected $keys = [];
 
+    /**
+     * Instructions to run after configuration is loaded
+     *
+     * @throws ModuleException
+     */
     public function _initialize()
     {
-        if (!class_exists('\Aerospike') && !$this->config['silent']) {
+        if (!class_exists('\Aerospike')) {
             throw new ModuleException(__CLASS__, 'Aerospike classes not loaded');
         }
 
         $this->connect();
     }
 
-    public function _before(TestCase $test)
+    /**
+     * Code to run before each test
+     *
+     * @param TestInterface $test
+     */
+    public function _before(TestInterface $test)
     {
         if ($this->config['reconnect']) {
             $this->connect();
@@ -89,7 +98,12 @@ class Aerospike extends CodeceptionModule
         parent::_before($test);
     }
 
-    public function _after(TestCase $test)
+    /**
+     * Code to run after each test
+     *
+     * @param TestInterface $test
+     */
+    public function _after(TestInterface $test)
     {
         if ($this->config['reconnect']) {
             $this->disconnect();
@@ -100,7 +114,7 @@ class Aerospike extends CodeceptionModule
 
     protected function onReconfigure()
     {
-        if (!class_exists('\Aerospike') && !$this->config['silent']) {
+        if (!class_exists('\Aerospike')) {
             throw new ModuleException(__CLASS__, 'Aerospike classes not loaded');
         }
 

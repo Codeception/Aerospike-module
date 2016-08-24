@@ -13,12 +13,11 @@
   "authors": [
     {
       "name": "Michael Bodnarchuk",
-      "email": "davert@mail.ua",
-      "homepage": "http://codegyre.com"
+      "email": "davert@codeception.com"
     },
     {
       "name": "Serghei Iakovlev",
-      "email": "me@klay.me"
+      "email": "serghei@codeception.com"
     }
   ],
   "support": {
@@ -26,7 +25,7 @@
     "source": "https://github.com/Codeception/Aerospike-module"
   },
   "require": {
-    "codeception/codeception": "~2.1"
+    "codeception/codeception": "~2.2"
   },
   "autoload": {
     "psr-4": {
