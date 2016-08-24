@@ -12,9 +12,6 @@ To use this module on your machine, you need at least:
 - [Aerospike PHP Extension][2]
 - Latest [Codeception][3] release
 
-**NOTE:**
-Probably this will work with older Aerospike Server versions, but we have not tested.
-
 ### Installation
 
 Create the `composer.json` file as follows:
@@ -38,15 +35,13 @@ $ php composer.phar install
 
 ```yaml
 modules:
-    enabled:
-        - Aerospike:
-            addr: '127.0.0.1' # Aerospike host to connect
-            port: 3000        # default Aerospike port
-            set: 'cache'      # the Aerospike set to store data
-            namespace: 'test' # the Aerospike namespace to store data
-            reconnect: false  # whether the module should reconnect to the Aerospike before each test
-            prefix: prefix_   # the key prefix
-            silent: true      # do not throw exception if the Aerospike extension does not installed at bootstrap time
+    - Aerospike:
+         addr: '127.0.0.1' # Aerospike host to connect
+         port: 3000        # default Aerospike port
+         set: 'cache'      # the Aerospike set to store data
+         namespace: 'test' # the Aerospike namespace to store data
+         reconnect: false  # whether the module should reconnect to the Aerospike before each test
+         prefix: 'prefix_' # the key prefix
 ```
 
 Then regenerate base class for unit suite
