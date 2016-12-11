@@ -75,10 +75,6 @@ class Aerospike extends CodeceptionModule
      */
     public function _initialize()
     {
-        if (!class_exists('\Aerospike')) {
-            throw new ModuleException(__CLASS__, 'Aerospike classes not loaded');
-        }
-
         $this->connect();
     }
 
@@ -143,11 +139,13 @@ class Aerospike extends CodeceptionModule
         $status = $this->aerospike->get($akey, $data);
         if ($status != \Aerospike::OK) {
             $this->fail(
-                sprintf(
-                    "Unable to grab '%s' from Aerospike DB [%s]: %s",
-                    $key,
-                    $this->aerospike->errorno(),
-                    $this->aerospike->error()
+                strtr(
+                    "[:errno:] Unable to grab ':key:' from the database: :error:",
+                    [
+                        ':errno:' => $this->aerospike->errorno(),
+                        ':key:'   => $key,
+                        ':error:' => $this->aerospike->error()
+                    ]
                 )
             );
         }
@@ -178,11 +176,13 @@ class Aerospike extends CodeceptionModule
         $status = $this->aerospike->get($akey, $actual);
         if ($status != \Aerospike::OK) {
             $this->fail(
-                sprintf(
-                    "Unable to get '%s' from Aerospike DB [%s]: %s",
-                    $key,
-                    $this->aerospike->errorno(),
-                    $this->aerospike->error()
+                strtr(
+                    "[:errno:] Unable to get ':key:' from the database: :error:",
+                    [
+                        ':errno:' => $this->aerospike->errorno(),
+                        ':key:'   => $key,
+                        ':error:' => $this->aerospike->error()
+                    ]
                 )
             );
         }
@@ -208,6 +208,12 @@ class Aerospike extends CodeceptionModule
     public function dontSeeInAerospike($key, $value = false)
     {
         $akey = $this->buildKey($key);
+
+        if ($value === false) {
+            $status = $this->aerospike->get($akey, $record);
+            $this->assertSame(\Aerospike::ERR_RECORD_NOT_FOUND, $status);
+            return;
+        }
 
         $this->aerospike->get($akey, $actual);
 
@@ -250,11 +256,13 @@ class Aerospike extends CodeceptionModule
 
         if ($status != \Aerospike::OK) {
             $this->fail(
-                sprintf(
-                    "Unable to store '%s' to the Aerospike DB [%s]: %s",
-                    $key,
-                    $this->aerospike->errorno(),
-                    $this->aerospike->error()
+                strtr(
+                    "[:errno:] Unable to store ':key:' to the database: :error:",
+                    [
+                        ':errno:' => $this->aerospike->errorno(),
+                        ':key:'   => $key,
+                        ':error:' => $this->aerospike->error()
+                    ]
                 )
             );
         }
@@ -262,7 +270,7 @@ class Aerospike extends CodeceptionModule
         $this->keys[] = $akey;
         $this->debugSection('Aerospike', [$key, $value]);
 
-        return $key;
+        return $akey;
     }
 
     /**
@@ -277,15 +285,22 @@ class Aerospike extends CodeceptionModule
 
     private function connect()
     {
-        if ($this->aerospike instanceof \Aerospike || !class_exists('\Aerospike')) {
+        if (!class_exists('\Aerospike')) {
+            throw new ModuleException(
+                __CLASS__,
+                'Unable to connect to the Aerospike Server: The aerospike extension doe not loaded.'
+            );
+        }
+
+        if ($this->aerospike instanceof \Aerospike) {
             return;
         }
 
-        $config = ['hosts' => [['addr' => $this->config['addr'], 'port' => $this->config['port']]]];
+        $config = ['hosts' => [['addr' => $this->config['addr'], 'port' => $this->config['port']]], 'shm' => []];
 
         $this->aerospike = new \Aerospike(
             $config,
-            false,
+            true,
             $this->config['options']
         );
     }
@@ -310,13 +325,29 @@ class Aerospike extends CodeceptionModule
         }
 
         foreach ($this->keys as $i => $key) {
-            $this->aerospike->remove(
-                $key,
-                [\Aerospike::OPT_POLICY_RETRY => \Aerospike::POLICY_RETRY_ONCE]
-            );
+            // We should to do check this because the test can delete the data by this time
+            $status = $this->aerospike->exists($key, $metadata);
+            $value  = json_encode($key);
 
-            unset($this->keys[$i]);
+            if ($status == \Aerospike::OK) {
+                $this->aerospike->remove($key, [\Aerospike::OPT_POLICY_RETRY => \Aerospike::POLICY_RETRY_ONCE]);
+            } elseif ($status == \Aerospike::ERR_RECORD_NOT_FOUND) {
+                $this->debug("The key {$value} does not exist in the database");
+            } else {
+                $this->debug(
+                    strtr(
+                        '[:errno:] Could not delete record :key: from the database: :error:',
+                        [
+                            ':errno:' => $this->aerospike->errorno(),
+                            ':key:'   => $value,
+                            ':error:' => $this->aerospike->error(),
+                        ]
+                    )
+                );
+            }
         }
+
+        $this->keys = [];
     }
 
     /**
