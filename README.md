@@ -19,8 +19,8 @@ Create the `composer.json` file as follows:
 ```json
 {
     "require-dev": {
-        "codeception/codeception": "*",
-        "codeception/aerospike-module": "*"
+        "codeception/codeception": "^2.2",
+        "codeception/aerospike-module": "^1.0"
     }
 }
 ```
