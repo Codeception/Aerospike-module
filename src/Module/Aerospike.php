@@ -296,7 +296,7 @@ class Aerospike extends CodeceptionModule
             return;
         }
 
-        $config = ['hosts' => [['addr' => $this->config['addr'], 'port' => $this->config['port']]], 'shm' => []];
+        $config = ['hosts' => [['addr' => $this->config['addr'], 'port' => (int)$this->config['port']]], 'shm' => []];
 
         $this->aerospike = new \Aerospike(
             $config,
