@@ -84,4 +84,4 @@ Aerospike Module is open-sourced software licensed under the [MIT][4] License.
 [1]: http://www.aerospike.com/
 [2]: http://www.aerospike.com/docs/client/php/install/
 [3]: https://github.com/Codeception/Codeception
-[4]: https://github.com/Codeception/Aerospike-module/blob/master/docs/LICENSE.md
+[4]: https://github.com/Codeception/Aerospike-module/blob/master/LICENSE.md
