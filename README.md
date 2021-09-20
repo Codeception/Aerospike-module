@@ -75,6 +75,10 @@ Inserts data into Aerospike database:
 $I->haveInAerospike('users', ['name' => 'miles', 'email' => 'miles@davis.com']);
 ```
 
+## Changelog
+
+[Changelog](https://github.com/Codeception/Aerospike-module/releases)
+
 ## License
 
 Aerospike Module is open-sourced software licensed under the [MIT][4] License.
